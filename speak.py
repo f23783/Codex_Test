@@ -29,11 +29,19 @@ if __name__ == "__main__":
     if os.environ.get("RUN_SPEECH") != "1":
         print("RUN_SPEECH=1 is required to run TTS demo.")
         raise SystemExit(0)
-    import patch_xtts
+    try:
+        import patch_xtts
+    except Exception:
+        # Skip patching if dependencies are missing
+        pass
 
     multiprocessing.freeze_support()
 
-    from RealtimeTTS import TextToAudioStream, CoquiEngine
+    try:
+        from RealtimeTTS import TextToAudioStream, CoquiEngine
+    except ModuleNotFoundError:
+        print("RealtimeTTS is not installed.")
+        raise SystemExit(1)
 
     # Use a smaller model to avoid long downloads during tests
     engine = CoquiEngine(model_name="tts_models/en/ljspeech/tacotron2-DDC")
