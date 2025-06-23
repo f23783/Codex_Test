@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     from RealtimeTTS import TextToAudioStream, CoquiEngine
 
-    # VITS model still works, but we won't stream it chunk-by-chunk:
+    # VITS model still works; we stream text chunk-by-chunk.
     engine = CoquiEngine(model_name="tts_models/en/vctk/vits")
     stream = TextToAudioStream(engine)
 
