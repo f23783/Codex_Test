@@ -12,6 +12,19 @@ for name in ("ParamSpec", "Concatenate"):
 import os, multiprocessing, time
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 os.environ["TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD"] = "1"
+
+
+def speak_text(text: str, chunk_size: int = 50, delay: float = 0.1):
+    """
+    Splits `text` into chunks of ~chunk_size characters,
+    feeds each to the TTS stream, and plays it immediately.
+    """
+    for i in range(0, len(text), chunk_size):
+        chunk = text[i : i + chunk_size]
+        stream.feed(chunk)
+        stream.play_async()
+        time.sleep(delay)  # give the audio thread time to start
+
 if __name__ == "__main__":
     import patch_xtts
 
@@ -22,20 +35,6 @@ if __name__ == "__main__":
     # VITS model still works, but we won't stream it chunk-by-chunk:
     engine = CoquiEngine(model_name="tts_models/en/vctk/vits")
     stream = TextToAudioStream(engine)
-
-
-    def speak_text(text: str, chunk_size: int = 50, delay: float = 0.1):
-        """
-        Splits `text` into chunks of ~chunk_size characters,
-        feeds each to the TTS stream, and plays it immediately.
-        """
-        for i in range(0, len(text), chunk_size):
-            chunk = text[i : i + chunk_size]
-            stream.feed(chunk)
-            stream.play_async()
-            time.sleep(delay)  # give the audio thread time to start
-
-
 
 
     greeting = "Hello, this is a test of the real-time text to speech streaming system."
