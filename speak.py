@@ -26,14 +26,25 @@ def speak_text(text: str, chunk_size: int = 50, delay: float = 0.1):
         time.sleep(delay)  # give the audio thread time to start
 
 if __name__ == "__main__":
-    import patch_xtts
+    if os.environ.get("RUN_SPEECH") != "1":
+        print("RUN_SPEECH=1 is required to run TTS demo.")
+        raise SystemExit(0)
+    try:
+        import patch_xtts
+    except Exception:
+        # Skip patching if dependencies are missing
+        pass
 
     multiprocessing.freeze_support()
 
-    from RealtimeTTS import TextToAudioStream, CoquiEngine
+    try:
+        from RealtimeTTS import TextToAudioStream, CoquiEngine
+    except ModuleNotFoundError:
+        print("RealtimeTTS is not installed.")
+        raise SystemExit(1)
 
-    # VITS model still works, but we won't stream it chunk-by-chunk:
-    engine = CoquiEngine(model_name="tts_models/en/vctk/vits")
+    # Use a smaller model to avoid long downloads during tests
+    engine = CoquiEngine(model_name="tts_models/en/ljspeech/tacotron2-DDC")
     stream = TextToAudioStream(engine)
 
 
